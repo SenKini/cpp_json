@@ -2,26 +2,6 @@
 #include <algorithm>
 #include <stack>
 
-CppJsonItem::CppJsonItem(CppJsonType type, std::string key, std::any value)
-	: _key(key), _type(type) {
-	switch (type) {
-		case BOOL:
-			_value = std::any_cast<bool>(value);
-			break;
-		case INT:
-			_value = std::any_cast<int>(value);
-			break;
-		case DOUBLE:
-			_value = std::any_cast<double>(value);
-			break;
-		case STRING:
-			_value = std::any_cast<std::string>(value);
-			break;
-		default:
-			_type = INVALID;  // 和另一个重载函数统一
-	}
-}
-
 CppJsonItem::CppJsonItem(CppJsonType type, std::string key) {
 	switch (type) {
 		case ARRAY:
@@ -37,17 +17,6 @@ CppJsonItem::CppJsonItem(CppJsonType type, std::string key) {
 
 CppJsonItem::CppJsonItem(CppJsonType type) {
 	_type = (type == RAW) ? RAW : INVALID;
-}
-
-std::any CppJsonItem::getValue(std::string key) {
-	if ((_type != OBJECT) && (_type != ARRAY) && (_type != NUL))  // 普通 item
-		return _value;
-	else if (_type != NUL)	// 复合 item
-		for (auto child : _childs)
-			if (child->_key == key)
-				return child->_value;
-
-	return std::any();
 }
 
 std::string CppJsonItem::getKey() {

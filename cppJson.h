@@ -1,7 +1,6 @@
 #include <string>
 #include <unordered_map>
 #include <list>
-#include <any>
 #include <variant>
 
 enum CppJsonType {
@@ -27,15 +26,25 @@ private:
 	std::list<CppJsonItem *> _childs;  // 子对象
 
 public:
-	CppJsonItem(CppJsonType type, std::string key, std::any value);	 // 创建基础类型的 item
-	CppJsonItem(CppJsonType type, std::string key);					 // 创建对象或数组类型的 item
-	CppJsonItem(CppJsonType type);									 // 创建最外层
-	std::any getValue(std::string key);								 // 通过 value 参数传回值
-	std::string getKey();											 // 获取关键字
-	CppJsonType getType();											 // 获取类型
-	bool add(CppJsonItem *item);									 // 添加新的子 item
-	bool erase(std::string key);									 // 移除子 item
-	std::string print();											 // 返回 json 格式字符串
+	template <class ValueType>
+	CppJsonItem(CppJsonType type, std::string key, ValueType value);  // 创建基础类型的 item
+	CppJsonItem(CppJsonType type, std::string key);					  // 创建对象或数组类型的 item
+	CppJsonItem(CppJsonType type);									  // 创建最外层
+	std::string getKey();											  // 获取关键字
+	CppJsonType getType();											  // 获取类型
+	bool add(CppJsonItem *item);									  // 添加新的子 item
+	bool erase(std::string key);									  // 移除子 item
+	std::string print();											  // 返回 json 格式字符串
+	auto getValue(std::string key) {
+		if ((_type != OBJECT) && (_type != ARRAY) && (_type != NUL))  // 普通 item
+			return _value;
+		else if (_type != NUL)	// 复合 item
+			for (auto child : _childs)
+				if (child->_key == key)
+					return child->_value;
+
+		return CPPJSON_VALUE();
+	}  // 通过 value 参数传回值
 };
 
 // 最外层 json，使用单件模式
@@ -62,3 +71,12 @@ public:
 	std::string printCompound(std::string key, CppJsonType type, std::list<CppJsonItem *> *childs);	 // 对复合结构的打印
 	std::string printRaw(std::list<CppJsonItem *> *childs);											 // 对最外层的打印
 };
+
+template <class ValueType>
+CppJsonItem::CppJsonItem(CppJsonType type, std::string key, ValueType value)
+	: _key(key), _type(type) {
+	if (type != BOOL && type != INT && type != DOUBLE && type != STRING)
+		_type = INVALID;
+	else
+		_value = value;
+}
