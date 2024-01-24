@@ -66,6 +66,19 @@ std::string CppJsonItem::print() {
 		return _key + ":null";	// 对于 NUL 类型单独处理
 }
 
+CppJsonItem *CppJsonItem::getItem(std::string key) {
+	if (_type != NUL)
+		if ((_type == OBJECT) && (_type == ARRAY)) {
+			for (auto child : _childs)
+				if (child->_key == key)
+					return child;
+		}
+		else if ((_type != OBJECT) && (_type != ARRAY) && (_key == key))  // 是否为普通 item，且 key 正确
+			return this;
+
+	return new CppJsonItem(INVALID);
+}
+
 CppJsonSingleton *CppJsonSingleton::_cppJsonSingleton = nullptr;
 
 CppJsonItem *CppJsonSingleton::stringToJson(std::string json) {

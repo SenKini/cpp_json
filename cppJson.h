@@ -35,6 +35,7 @@ public:
 	bool add(CppJsonItem *item);									  // 添加新的子 item
 	bool erase(std::string key);									  // 移除子 item
 	std::string print();											  // 返回 json 格式字符串
+	CppJsonItem *getItem(std::string key);							  // 获取 CppJsonItem 对象
 	auto getValue(std::string key) {
 		if ((_type != OBJECT) && (_type != ARRAY) && (_type != NUL))  // 普通 item
 			return _value;
@@ -44,7 +45,7 @@ public:
 					return child->_value;
 
 		return CPPJSON_VALUE();
-	}  // 通过 value 参数传回值
+	}  // 通过 key 获取当前对象中的值
 };
 
 // 最外层 json，使用单件模式
