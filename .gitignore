@@ -1,3 +1,7 @@
-/.vscode
-/build
-/main.cpp
+/.vs
+/x64
+/cpp_json
+*.sln
+*.vcxproj
+*.filters
+*.user
